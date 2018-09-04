@@ -12,7 +12,7 @@ Vagrant.configure("2") do |config|
 
   # Every Vagrant development environment requires a box. You can search for
   # boxes at https://vagrantcloud.com/search.
-  config.vm.box = "centos/7"
+  config.vm.box = "jrmsdev/kivy-buildozer"
 
   # Disable automatic box update checking. If you disable this, then
   # boxes will only be checked for updates when the user runs
@@ -64,17 +64,35 @@ Vagrant.configure("2") do |config|
   # Puppet, Chef, Ansible, Salt, and Docker are also available. Please see the
   # documentation for more information about their specific syntax and use.
   config.vm.provision "shell", inline: <<-SHELL
-    yum install -y epel-release
-    yum upgrade -y
-    yum install -y python python-pip
-    pip install --upgrade pip
-    pip install buildozer
-    pip install https://github.com/kivy/buildozer/archive/master.zip
-    yum group install -y "Development Tools"
-    cd /root/
-    git clone https://github.com/kivy/buildozer
-    cd /root/buildozer
-    python setup.py build
-    pip install -e .
+    pip install --upgrade buildozer
+
+    #dpkg --add-architecture i386
+    #add-apt-repository ppa:kivy-team/kivy
+    #apt-get update
+    #apt-get upgrade
+    #apt-get install -y build-essential ccache git zlib1g-dev python2.7 python2.7-dev libncurses5:i386 libstdc++6:i386 zlib1g:i386 openjdk-7-jdk unzip ant ccache autoconf libtool
+    #apt-get install python-kivy
+    #apt-get install python-pip
+    #pip install --upgrade pip
+    #pip install buildozer
+    #pip install https://github.com/kivy/buildozer/archive/master.zip
+    #cd /root/
+    #git clone https://github.com/kivy/buildozer
+    #cd /root/buildozer
+    #python setup.py build
+    #pip install -e .
+
+    #yum install -y epel-release
+    #yum upgrade -y
+    #yum install -y python python-pip
+    #pip install --upgrade pip
+    #pip install buildozer
+    #pip install https://github.com/kivy/buildozer/archive/master.zip
+    #yum group install -y "Development Tools"
+    #cd /root/
+    #git clone https://github.com/kivy/buildozer
+    #cd /root/buildozer
+    #python setup.py build
+    #pip install -e .
   SHELL
 end
