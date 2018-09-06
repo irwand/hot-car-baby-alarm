@@ -1,3 +1,6 @@
+// =======================================================================
+// This is copied from https://github.com/jpetrocik/bluetoothserial
+// =======================================================================
 package com.bmxgates.logger;
 
 import java.io.IOException;
