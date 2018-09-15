@@ -1,5 +1,6 @@
 package org.southcrest.hotcarbabyalarm;
 
+import android.content.res.Configuration;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.TextView;
@@ -35,6 +36,13 @@ public class MainActivity extends AppCompatActivity {
         }, "HC");
     }
 
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        setContentView(R.layout.activity_main);
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
 
@@ -43,6 +51,7 @@ public class MainActivity extends AppCompatActivity {
         this.bluetoothSerial.onResume();
     }
 
+    @Override
     protected void onPause() {
         super.onPause();
         // avoid leaking stuff
