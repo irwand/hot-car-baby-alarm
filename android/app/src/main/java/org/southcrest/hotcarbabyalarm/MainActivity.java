@@ -1,6 +1,11 @@
 package org.southcrest.hotcarbabyalarm;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.res.Configuration;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.TextView;
@@ -8,7 +13,9 @@ import android.widget.TextView;
 import com.bmxgates.logger.BluetoothSerial;
 
 public class MainActivity extends AppCompatActivity {
+    private int state;  // 0: baby off, 1: baby on
     private BluetoothSerial bluetoothSerial;
+    private BroadcastReceiver disconnectReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,14 +33,27 @@ public class MainActivity extends AppCompatActivity {
                         TextView textView = findViewById(R.id.textView);
                         if (mystr.startsWith("1")) {
                             textView.setText("Baby on");
+                            state = 1;
                         } else {
                             textView.setText("Baby off");
+                            state = 0;
                         }
                     }
                 });
                 return bufferSize;
             }
         }, "HC");
+
+        disconnectReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                TextView textView = findViewById(R.id.textView);
+                textView.setText("Disconnected");
+            }
+        };
+
+        LocalBroadcastManager.getInstance(this).registerReceiver(
+                disconnectReceiver, new IntentFilter(BluetoothSerial.BLUETOOTH_DISCONNECTED));
     }
 
     @Override
