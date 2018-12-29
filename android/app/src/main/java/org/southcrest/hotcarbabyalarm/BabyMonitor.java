@@ -34,6 +34,15 @@ class SerialHandler implements BluetoothSerial.MessageHandler {
     }
 }
 
+class ConnectReceiver extends BroadcastReceiver {
+    private BabyMonitor babyMonitor;
+
+    public ConnectReceiver(BabyMonitor bm) { babyMonitor = bm; }
+
+    @Override
+    public void onReceive(Context context, Intent intent) { babyMonitor.onConnect(); }
+}
+
 class DisconnectReceiver extends BroadcastReceiver {
     private BabyMonitor babyMonitor;
 
@@ -54,6 +63,7 @@ public class BabyMonitor extends Service {
     private Boolean monitorStarted;
     private BluetoothSerial bluetoothSerial;
     private BroadcastReceiver disconnectReceiver;
+    private BroadcastReceiver connectReceiver;
 
     private Notification getStateNotification(String title, String text) {
         Intent notificationIntent = new Intent(this, BabyMonitor.class);
@@ -79,10 +89,18 @@ public class BabyMonitor extends Service {
     public void onSerialRead(String text) {
         if (text.startsWith("1")) {
             babyOnSeat = true;
-            updateNotificationText("Baby on", "Baby on");
+            updateNotificationText("Child On Seat", "Your child is on the seat.");
         } else {
             babyOnSeat = false;
-            updateNotificationText("Baby off", "Baby off");
+            updateNotificationText("Child Not On Seat", "Your child is not on the seat.");
+        }
+    }
+
+    public void onConnect() {
+        try {
+            bluetoothSerial.write(1);
+        } catch (Exception e) {
+            // do nothing
         }
     }
 
@@ -124,9 +142,13 @@ public class BabyMonitor extends Service {
 
         Toast.makeText(this, "Baby monitor starting", Toast.LENGTH_SHORT).show();
 
-        startForeground(this.NOTIFICATION_ID, getStateNotification("Baby Monitor", "Connecting1..."));
+        startForeground(this.NOTIFICATION_ID, getStateNotification("Baby Monitor", "Connecting..."));
 
         bluetoothSerial.onResume();
+
+        connectReceiver = new ConnectReceiver(this);
+        LocalBroadcastManager.getInstance(this).registerReceiver(
+                connectReceiver, new IntentFilter(BluetoothSerial.BLUETOOTH_CONNECTED));
 
         disconnectReceiver = new DisconnectReceiver(this);
         LocalBroadcastManager.getInstance(this).registerReceiver(
