@@ -73,7 +73,7 @@ public class BabyMonitor extends Service {
         return new Notification.Builder(this)
                         .setContentTitle(title)
                         .setContentText(text)
-                        .setSmallIcon(R.mipmap.ic_launcher)
+                        .setSmallIcon(R.mipmap.hotcaralarm)
                         .setContentIntent(pendingIntent)
                         .setTicker(text)
                         .build();
@@ -113,7 +113,7 @@ public class BabyMonitor extends Service {
             long[] v = {500,1000};
             NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(BabyMonitor.this)
                     .setContentTitle("Child on Seat")
-                    .setSmallIcon(R.mipmap.ic_launcher)
+                    .setSmallIcon(R.mipmap.hotcaralarm)
                     .setContentIntent(pendingIntent)
                     .setContentText("Child left on seat!")
                     .setAutoCancel(true)
