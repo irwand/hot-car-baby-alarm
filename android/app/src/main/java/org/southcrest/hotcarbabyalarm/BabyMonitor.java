@@ -1,6 +1,7 @@
 package org.southcrest.hotcarbabyalarm;
 
 import android.app.Notification;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
@@ -10,6 +11,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.media.RingtoneManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
@@ -59,6 +61,7 @@ class DisconnectReceiver extends BroadcastReceiver {
 public class BabyMonitor extends Service {
 
     private static int NOTIFICATION_ID = 1234;
+    private static String NOTIFICATION_CHANNEL = "hotcaralarm";
     private Boolean babyOnSeat;
     private Boolean monitorStarted;
     private BluetoothSerial bluetoothSerial;
@@ -70,7 +73,7 @@ public class BabyMonitor extends Service {
         PendingIntent pendingIntent =
                 PendingIntent.getActivity(this, 0, notificationIntent, 0);
 
-        return new Notification.Builder(this)
+        return new NotificationCompat.Builder(this, NOTIFICATION_CHANNEL)
                         .setContentTitle(title)
                         .setContentText(text)
                         .setSmallIcon(R.mipmap.hotcaralarm)
@@ -111,17 +114,18 @@ public class BabyMonitor extends Service {
 
             Uri uri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
             long[] v = {500,1000};
-            NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(BabyMonitor.this)
+            Notification notification = new NotificationCompat.Builder(BabyMonitor.this, NOTIFICATION_CHANNEL)
                     .setContentTitle("Child on Seat")
                     .setSmallIcon(R.mipmap.hotcaralarm)
                     .setContentIntent(pendingIntent)
                     .setContentText("Child left on seat!")
                     .setAutoCancel(true)
                     .setSound(uri)
-                    .setVibrate(v);
+                    .setVibrate(v)
+                    .build();
 
             NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
-            notificationManager.notify(1, notificationBuilder.build());
+            notificationManager.notify(1, notification);
         }
         stopSelf();
     }
@@ -130,6 +134,21 @@ public class BabyMonitor extends Service {
     public void onCreate() {
         monitorStarted = false;
         babyOnSeat = false;
+
+        // Create the NotificationChannel, but only on API 26+ because
+        // the NotificationChannel class is new and not in the support library
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            CharSequence name = "Hot Car Baby Alarm";
+            String description = "Notification that your baby might be left in the car";
+            int importance = NotificationManager.IMPORTANCE_HIGH;
+            NotificationChannel channel = new NotificationChannel(NOTIFICATION_CHANNEL, name, importance);
+            channel.setDescription(description);
+            // Register the channel with the system; you can't change the importance
+            // or other notification behaviors after this
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
+        }
+
         bluetoothSerial = new BluetoothSerial(this, new SerialHandler(this), "HC");
     }
 
